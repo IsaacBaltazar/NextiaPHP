@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BienesModel;
+use App\Models\Users_Model;
 use Illuminate\Http\Request;
 
 class BienesModelController extends Controller
@@ -22,9 +23,26 @@ class BienesModelController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $request->validate([
+            'user_id' => 'required',
+            'articulo' => 'required|string|max:255',
+            'descripcion' => 'required|string|max:255',
+        ]);
+        $users = Users_Model::find($request->user_id);
+        if(is_object($users)){
+            $bien = BienesModel::create([
+                'articulo' => $request->articulo,
+                'descripcion' => $request->descripcion,
+                'usuario_id' => $request->hasMany('user_id')
+            ]);
+            $response = [
+                'message'=>"Bien agregado",
+                $bien
+            ];
+        return response()->json($response,200);
+        }
     }
 
     /**
